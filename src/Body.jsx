@@ -1,15 +1,17 @@
+import { Outlet } from "react-router-dom";
 import NavBar from "./NavBar";
-import {Outlet} from "react-router-dom"
 import Footer from "./Footer";
 
 const Body = () => {
   return (
-    <div>
-      <NavBar/>
-      <Outlet />
+    <div className="app-canvas min-h-screen flex flex-col">
+      <NavBar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default Body
+export default Body;
