@@ -33,83 +33,104 @@ const devs = [
   },
 ];
 
+// Classes that fly the top card off the screen
+const exitStyles = {
+  none: "",
+  left: "-translate-x-[140%] -rotate-[14deg] opacity-0",
+  right: "translate-x-[140%] rotate-[14deg] opacity-0",
+};
+
+// One developer card. "position" decides where it sits in the stack.
+const DevCard = ({ dev, position }) => {
+  return (
+    <div
+      className={
+        "absolute inset-0 rounded-[28px] border border-black/5 bg-white p-5 text-[#1a1033] shadow-2xl transition-all duration-300 dark:border-transparent dark:bg-[#fbf3ea] " +
+        position
+      }
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="grid h-14 w-14 place-items-center rounded-2xl font-display text-xl font-extrabold text-white"
+          style={{ background: dev.color }}
+        >
+          {dev.initials}
+        </div>
+        <div>
+          <div className="font-display text-[22px] font-extrabold leading-tight">
+            {dev.name}
+          </div>
+          <div className="text-[13px] text-[#1a1033]/60">{dev.role}</div>
+        </div>
+      </div>
+
+      <p className="mb-2.5 mt-3.5 text-[15px]">{dev.bio}</p>
+
+      <div className="flex flex-wrap gap-1.5">
+        {dev.stack.map((tech) => (
+          <span
+            key={tech}
+            className="rounded-full bg-[#2a1457]/10 px-2.5 py-1 text-xs font-semibold"
+          >
+            {tech}
+          </span>
+        ))}
+      </div>
+
+      <div className="absolute inset-x-5 bottom-4 border-t border-dashed border-[#1a1033]/20 pt-2.5 text-[13px] text-[#1a1033]/60">
+        You both like{" "}
+        <b className="text-[#1a1033]">{dev.shared.join(" and ")}</b>
+      </div>
+    </div>
+  );
+};
+
 const SwipeDeck = () => {
-  const [idx, setIdx] = useState(0);
-  const [exit, setExit] = useState(null); // "l" | "r" | null
+  const [index, setIndex] = useState(0); // which developer is on top
+  const [exit, setExit] = useState("none"); // "none" | "left" | "right"
 
-  const act = (dir) => {
-    if (exit) return;
-    setExit(dir);
-    setTimeout(
-      () => {
-        setIdx((i) => (i + 1) % devs.length);
-        setExit(null);
-      },
-      dir === "r" ? 950 : 350,
-    );
-  };
+  // % wraps the number back to 0 after the last developer
+  const top = devs[index];
+  const middle = devs[(index + 1) % devs.length];
+  const back = devs[(index + 2) % devs.length];
 
-  const position = (k) => {
-    if (k === 0) {
-      if (exit === "r") return "translate-x-[140%] rotate-[14deg] opacity-0";
-      if (exit === "l") return "-translate-x-[140%] -rotate-[14deg] opacity-0";
-      return "";
-    }
-    return k === 1
-      ? "scale-95 translate-y-3.5 opacity-80"
-      : "scale-90 translate-y-7 opacity-50";
+  const swipe = (direction) => {
+    if (exit !== "none") return; // ignore clicks while a card is flying away
+
+    setExit(direction); // 1. card flies away
+
+    const wait = direction === "right" ? 950 : 350;
+    setTimeout(() => {
+      setIndex((index + 1) % devs.length); // 2. next developer on top
+      setExit("none");
+    }, wait);
   };
 
   return (
     <div>
       <div className="relative h-[290px] w-full max-w-[330px]">
-        {[2, 1, 0].map((k) => {
-          const d = devs[(idx + k) % devs.length];
-          return (
-            <div
-              key={`${d.id}-${idx}`}
-              style={{ zIndex: 3 - k }}
-              className={`absolute inset-0 rounded-[28px] border border-black/5 bg-white p-5 text-[#1a1033] shadow-2xl transition-all duration-300 dark:border-transparent dark:bg-[#fbf3ea] ${position(k)}`}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="grid h-14 w-14 place-items-center rounded-2xl font-display text-xl font-extrabold text-white"
-                  style={{ background: d.color }}
-                >
-                  {d.initials}
-                </div>
-                <div>
-                  <div className="font-display text-[22px] font-extrabold leading-tight">
-                    {d.name}
-                  </div>
-                  <div className="text-[13px] text-[#1a1033]/60">{d.role}</div>
-                </div>
-              </div>
-
-              <p className="mb-2.5 mt-3.5 text-[15px]">{d.bio}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {d.stack.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-full bg-[#2a1457]/10 px-2.5 py-1 text-xs font-semibold"
-                  >
-                    {s}
-                  </span>
-                ))}
-              </div>
-
-              <div className="absolute inset-x-5 bottom-4 border-t border-dashed border-[#1a1033]/20 pt-2.5 text-[13px] text-[#1a1033]/60">
-                You both like{" "}
-                <b className="text-[#1a1033]">{d.shared.join(" and ")}</b>
-              </div>
-            </div>
-          );
-        })}
+        {/* The key includes index so each card is redrawn fresh after a swipe */}
+        <DevCard
+          key={back.id + index}
+          dev={back}
+          position="z-0 scale-90 translate-y-7 opacity-50"
+        />
+        <DevCard
+          key={middle.id + index}
+          dev={middle}
+          position="z-10 scale-95 translate-y-3.5 opacity-80"
+        />
+        <DevCard
+          key={top.id + index}
+          dev={top}
+          position={"z-20 " + exitStyles[exit]}
+        />
 
         <div
-          className={`pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-accent px-6 py-3.5 font-display text-[22px] font-extrabold text-accent-content transition-all duration-300 ${
-            exit === "r" ? "scale-100 opacity-100" : "scale-75 opacity-0"
-          }`}
+          className={
+            "pointer-events-none absolute left-1/2 top-1/2 z-30 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-accent px-6 py-3.5 font-display text-[22px] font-extrabold text-accent-content transition-all duration-300 " +
+            (exit === "right" ? "scale-100 opacity-100" : "scale-75 opacity-0")
+          }
         >
           Merged!
         </div>
@@ -118,14 +139,14 @@ const SwipeDeck = () => {
       <div className="mt-14 flex gap-3">
         <button
           type="button"
-          onClick={() => act("l")}
+          onClick={() => swipe("left")}
           className="btn h-[50px] rounded-full border-base-content/15 bg-base-content/5 px-6"
         >
           Pass
         </button>
         <button
           type="button"
-          onClick={() => act("r")}
+          onClick={() => swipe("right")}
           className="btn btn-primary h-[50px] rounded-full px-6"
         >
           Send request!
@@ -135,13 +156,16 @@ const SwipeDeck = () => {
   );
 };
 
+const inputStyle =
+  "input validator h-[50px] w-full border-base-content/15 bg-base-100/60 focus:border-primary focus:outline-primary/40";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = (e) => {
-    e.preventDefault();
-    // TODO: call your login API with { email, password }
+    e.preventDefault(); // stop the page from reloading
+    console.log(email, password); // TODO: call your login API here
   };
 
   return (
@@ -158,24 +182,20 @@ const Login = () => {
         <SwipeDeck />
       </section>
 
-      {/* Right: glass login card */}
+      {/* Right: login card */}
       <form
         onSubmit={handleLogin}
         className="w-full max-w-md justify-self-center rounded-[28px] border border-base-content/15 bg-white/60 p-8 shadow-2xl backdrop-blur-xl dark:bg-white/[0.07]"
       >
         <div className="mb-5 flex items-center gap-2.5 text-[13px] text-base-content/70">
           <div className="flex">
-            {[
-              ["PR", "#5B2EA6"],
-              ["AR", "#E2634B"],
-              ["SK", "#2E7D6B"],
-            ].map(([t, c], i) => (
+            {devs.map((dev) => (
               <span
-                key={t}
-                style={{ background: c }}
-                className={`grid h-[30px] w-[30px] place-items-center rounded-full border-2 border-base-100 font-display text-[11px] font-extrabold text-white ${i > 0 ? "-ml-2" : ""}`}
+                key={dev.id}
+                style={{ background: dev.color }}
+                className="-ml-2 grid h-[30px] w-[30px] place-items-center rounded-full border-2 border-base-100 font-display text-[11px] font-extrabold text-white first:ml-0"
               >
-                {t}
+                {dev.initials}
               </span>
             ))}
           </div>
@@ -186,6 +206,8 @@ const Login = () => {
           Welcome back
         </h2>
 
+        
+{/*         
         <button
           type="button"
           className="btn h-[50px] w-full rounded-2xl border-base-content/15 bg-base-content/5"
@@ -203,7 +225,8 @@ const Login = () => {
 
         <div className="divider my-4 text-[13px] text-base-content/60">
           or use email
-        </div>
+        </div> */}
+        
 
         <fieldset className="fieldset">
           <label className="label font-semibold text-base-content">Email</label>
@@ -211,7 +234,7 @@ const Login = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="input validator h-[50px] w-full border-base-content/15 bg-base-100/60 focus:border-primary focus:outline-primary/40"
+            className={inputStyle}
             placeholder="you@example.com"
             required
           />
@@ -226,7 +249,7 @@ const Login = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="input validator h-[50px] w-full border-base-content/15 bg-base-100/60 focus:border-primary focus:outline-primary/40"
+            className={inputStyle}
             placeholder="••••••••"
             required
           />
