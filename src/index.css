@@ -93,7 +93,7 @@
 .app-canvas {
   position: relative;
   isolation: isolate;
-  overflow-x: clip;
+  overflow: clip;           /* was: overflow-x: clip */
   background: linear-gradient(160deg, var(--color-base-100), var(--color-base-200));
 }
 .app-canvas::before,

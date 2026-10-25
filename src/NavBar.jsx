@@ -1,6 +1,6 @@
 const NavBar = () => {
   return (
-    <header className="sticky top-0 z-20 backdrop-blur-md bg-base-100/50">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-base-100/50">
       <div className="navbar mx-auto max-w-6xl px-6">
         <div className="flex-1">
           <a className="font-display text-2xl font-extrabold tracking-tight">
