@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios"; //same as fetch for api calls
 
 const devs = [
   {
@@ -160,12 +161,23 @@ const inputStyle =
   "input validator h-[50px] w-full border-base-content/15 bg-base-100/60 focus:border-primary focus:outline-primary/40";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [emailId, setEmailId] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async(e) => {
     e.preventDefault(); // stop the page from reloading
-    console.log(email, password); // TODO: call your login API here
+
+    try{
+
+      const res = await axios.post("http://localhost:7777/login",
+        {emailId,password},
+        {withCredentials: true } // lets the browser store the login cookie
+        );
+        console.log(res.data);
+    }catch(err){
+      console.log(err);
+    }
+    
   };
 
   return (
@@ -184,7 +196,7 @@ const Login = () => {
 
       {/* Right: login card */}
       <form
-        onSubmit={handleLogin}
+      onSubmit={handleLogin}
         className="w-full max-w-md justify-self-center rounded-[28px] border border-base-content/15 bg-white/60 p-8 shadow-2xl backdrop-blur-xl dark:bg-white/[0.07]"
       >
         <div className="mb-5 flex items-center gap-2.5 text-[13px] text-base-content/70">
@@ -207,7 +219,7 @@ const Login = () => {
         </h2>
 
         
-{/*         
+{/*         GITHUB login to implement later
         <button
           type="button"
           className="btn h-[50px] w-full rounded-2xl border-base-content/15 bg-base-content/5"
@@ -232,8 +244,8 @@ const Login = () => {
           <label className="label font-semibold text-base-content">Email</label>
           <input
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={emailId}
+            onChange={(e) => setEmailId(e.target.value)}
             className={inputStyle}
             placeholder="you@example.com"
             required
@@ -257,8 +269,8 @@ const Login = () => {
         </fieldset>
 
         <button
-          type="submit"
           className="btn btn-primary mt-6 h-14 w-full rounded-full font-display text-[17px] font-extrabold"
+          type="submit"
         >
           Log in
         </button>
