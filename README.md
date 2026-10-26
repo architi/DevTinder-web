@@ -10,9 +10,23 @@
 - Create BrowserRouter > Routes > Route=/ Body > RouteChildren
 - Create Outlet in body component
 - Create a footer
-
-->Create a login page
-
+ 
+ ---WALK DOWN---
+- Create a login page
+- npm i axios
+ cause: just like fetch but better at api fetching from backend 
+- CORS - npm i cors in backend => add middleware to with configurations: orgin( localhost of frontend), credentials: true
+- whenever making API call so pass axios => {withCredentials: true} //in frontend
+- install @reduxjs/toolkit + redux-react
+ > go through:- https://redux.js.org/tutorials/quick-start
+--chain of steps for setting up redux store & slice--
+- configureStore => Provider => createSlice => add reducer to store  
+- to add data in reduxStore -> dispatch an action
+ > useDispatch Hook by react 
+- add redux devtools in chrome
+- log in & check data is coming properly in the store
+- navbar should update when user logs in
+- constants file + component folder
 
 
 BODY
