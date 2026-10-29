@@ -1,12 +1,30 @@
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import defaultAvatar from "../assets/default-avatar.png";
-import {Link} from "react-router-dom"
+import { Link, navigate } from "react-router-dom";
+import { removeUser } from "@/utils/userSlice";
+import axios  from "axios";
+import { BASE_URL } from "@/utils/constants";
 
 const NavBar = () => {
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  const handleLogout = async() =>{
+    try{
+      await axios.get(BASE_URL+"/logout",{},{withCredentials:true})
+
+      //clearing the redux store and redirecting user to login page
+      dispatch(removeUser())
+      
+      return navigate("/login")
+    }catch(err){
+      console.log(err)
+    }
+  } 
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-base-100/50">
+
+       <header className="sticky top-0 z-50 backdrop-blur-md bg-base-100/50">
       <div className="navbar mx-auto max-w-6xl px-6">
         <div className="flex-1">
           <Link to="/" className="font-display text-2xl font-extrabold tracking-tight">
@@ -56,8 +74,8 @@ const NavBar = () => {
                 <li>
                   <a>Settings</a>
                 </li>
-                <li>
-                  <a>Logout</a>
+                <li > 
+                  <a onClick={handleLogout()}>Logout</a>
                 </li>
               </ul>
             </div>
