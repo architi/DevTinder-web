@@ -1,5 +1,6 @@
 import { useSelector } from "react-redux";
 import defaultAvatar from "../assets/default-avatar.png";
+import {Link} from "react-router-dom"
 
 const NavBar = () => {
   const user = useSelector((state) => state.user);
@@ -8,9 +9,9 @@ const NavBar = () => {
     <header className="sticky top-0 z-50 backdrop-blur-md bg-base-100/50">
       <div className="navbar mx-auto max-w-6xl px-6">
         <div className="flex-1">
-          <a className="font-display text-2xl font-extrabold tracking-tight">
+          <Link to="/" className="font-display text-2xl font-extrabold tracking-tight">
             DevTinder<span className="text-primary">.</span>
-          </a>
+          </Link>
         </div>
 
         {user && (
@@ -47,10 +48,10 @@ const NavBar = () => {
                 className="menu menu-sm dropdown-content z-20 mt-3 w-52 rounded-box border border-base-content/15 bg-base-100 p-2 shadow-xl"
               >
                 <li>
-                  <a className="justify-between">
+                  <Link to="/profile" className="justify-between">
                     Profile
                     <span className="badge badge-accent badge-sm">New</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a>Settings</a>
