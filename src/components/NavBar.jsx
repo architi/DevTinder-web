@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import defaultAvatar from "../assets/default-avatar.png";
-import { Link, navigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { removeUser } from "@/utils/userSlice";
 import axios  from "axios";
 import { BASE_URL } from "@/utils/constants";
@@ -8,10 +8,11 @@ import { BASE_URL } from "@/utils/constants";
 const NavBar = () => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = async() =>{
     try{
-      await axios.get(BASE_URL+"/logout",{},{withCredentials:true})
+      await axios.post(BASE_URL+"/logout",{},{withCredentials:true})
 
       //clearing the redux store and redirecting user to login page
       dispatch(removeUser())
@@ -75,7 +76,7 @@ const NavBar = () => {
                   <a>Settings</a>
                 </li>
                 <li > 
-                  <a onClick={handleLogout()}>Logout</a>
+                  <a onClick={handleLogout}>Logout</a>
                 </li>
               </ul>
             </div>
