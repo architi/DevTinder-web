@@ -173,7 +173,6 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // stop the page from reloading
-    setError("");
 
     try {
       const res = await axios.post(
@@ -184,8 +183,7 @@ const Login = () => {
       dispatch(addUser(res.data));
       return navigate("/");
     } catch (err) {
-      console.log(err);
-      setError("Something went wrong");
+      setError(err.response?.data||"Something went wrong!");
     }
   };
 
@@ -267,7 +265,6 @@ const Login = () => {
             placeholder="••••••••"
             required
           />
-          <p>{error}</p>
           <p className="validator-hint hidden">Enter your password</p>
         </fieldset>
 
