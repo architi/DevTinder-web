@@ -267,6 +267,7 @@ const Login = () => {
             placeholder="••••••••"
             required
           />
+          <p>{error}</p>
           <p className="validator-hint hidden">Enter your password</p>
         </fieldset>
 
