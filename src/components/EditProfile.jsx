@@ -159,8 +159,6 @@ const EditProfile = ({ user }) => {
 
   const handleSave = async () => {
     if (!isValid || saving) return;
-setSaved(true);
-setTimeout(() => setSaved(false), 3000);
     setSaving(true);
     setServerError("");
 
@@ -212,7 +210,7 @@ setTimeout(() => setSaved(false), 3000);
     <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_380px]">
       {saved && <ProfileToast />}
       <div className="w-full min-w-0">
-        <Card className="gap-0 rounded-[28px] border-base-content/15 bg-white/60 p-0 shadow-2xl backdrop-blur-xl dark:bg-white/[0.07]">
+        <Card className="gap-0 rounded-[28px] border-base-content/15 bg-white/60 p-0 shadow-2xl dark:bg-white/[0.07]">
           <CardContent className="space-y-8 p-6 pb-2 sm:p-8 sm:pb-2">
             {/* Heading */}
             <div>
@@ -430,7 +428,7 @@ setTimeout(() => setSaved(false), 3000);
           </CardContent>
 
           {/* Bottom bar - Reset / Save */}
-          <div className="sticky bottom-0 mt-4 flex flex-wrap items-center justify-end gap-3 rounded-b-[28px] border-t border-base-content/15 bg-base-100/70 px-6 py-4 backdrop-blur-xl sm:px-8">
+          <div className="sticky bottom-0 mt-4 flex flex-wrap items-center justify-end gap-3 rounded-b-[28px] border-t border-base-content/15 bg-base-100/90 px-6 py-4 sm:px-8">
             <div className="mr-auto text-sm" aria-live="polite">
               {serverError && <span className="text-error">{serverError}</span>}
             </div>

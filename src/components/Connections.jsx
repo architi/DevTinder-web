@@ -16,19 +16,11 @@ const MAX_SKILLS = 4;
 
 // Same glass look as your login card
 const glass =
-  "rounded-2xl border-base-content/15 bg-white/60 text-base-content shadow-md backdrop-blur-xl dark:bg-white/[0.07]";
+  "rounded-2xl border-base-content/15 bg-white/60 text-base-content shadow-md dark:bg-white/[0.07]";
 
 /* One connection */
 const ConnectionCard = ({ person }) => {
-  const {
-    firstName = "",
-    lastName = "",
-    photoUrl,
-    age,
-    gender,
-    about,
-    skills = [],
-  } = person;
+  const { firstName = "", lastName = "", photoUrl, age, gender, about, skills = [] } = person;
 
   const fullName = `${firstName} ${lastName ?? ""}`.trim();
   const initials = `${firstName[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase();
@@ -46,30 +38,20 @@ const ConnectionCard = ({ person }) => {
       <CardContent className="flex h-full flex-col gap-3 p-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12 shrink-0 ring-1 ring-base-content/15">
-            <AvatarImage
-              src={photoUrl}
-              alt={fullName}
-              className="object-cover"
-            />
+            <AvatarImage src={photoUrl} alt={fullName} className="object-cover" />
             <AvatarFallback className="bg-muted font-display text-base font-bold text-muted-foreground">
               {initials || "?"}
             </AvatarFallback>
           </Avatar>
 
           <div className="min-w-0">
-            <h2 className="truncate font-display text-base font-bold leading-tight">
-              {fullName}
-            </h2>
-            {meta && (
-              <p className="text-xs capitalize text-base-content/70">{meta}</p>
-            )}
+            <h2 className="truncate font-display text-base font-bold leading-tight">{fullName}</h2>
+            {meta && <p className="text-xs capitalize text-base-content/70">{meta}</p>}
           </div>
         </div>
 
         {about ? (
-          <p className="line-clamp-2 text-[13px] leading-relaxed text-base-content/80">
-            {about}
-          </p>
+          <p className="line-clamp-2 text-[13px] leading-relaxed text-base-content/80">{about}</p>
         ) : (
           <p className="text-[13px] italic text-base-content/60">No bio yet.</p>
         )}
@@ -86,10 +68,7 @@ const ConnectionCard = ({ person }) => {
               </Badge>
             ))}
             {hiddenCount > 0 && (
-              <Badge
-                variant="outline"
-                className="rounded-full border-base-content/20 px-2 py-0 text-[11px] font-normal text-base-content/70"
-              >
+              <Badge variant="outline" className="rounded-full border-base-content/20 px-2 py-0 text-[11px] font-normal text-base-content/70">
                 +{hiddenCount}
               </Badge>
             )}
@@ -172,8 +151,7 @@ const Connections = () => {
           </h1>
           {!loading && !error && (
             <p className="mt-0.5 text-sm text-base-content/70">
-              {count} {count === 1 ? "developer" : "developers"} ready to build
-              with you
+              {count} {count === 1 ? "developer" : "developers"} ready to build with you
             </p>
           )}
         </div>
@@ -206,11 +184,7 @@ const Connections = () => {
         <div className={glass + " mx-auto max-w-sm border p-6 text-center"}>
           <p className="font-display text-lg font-bold">Something broke</p>
           <p className="mt-1.5 text-sm text-base-content/70">{error}</p>
-          <button
-            type="button"
-            onClick={fetchConnections}
-            className="btn btn-primary btn-sm mt-5 rounded-full px-5"
-          >
+          <button type="button" onClick={fetchConnections} className="btn btn-primary btn-sm mt-5 rounded-full px-5">
             Try again
           </button>
         </div>
@@ -221,13 +195,9 @@ const Connections = () => {
         <div className={glass + " mx-auto max-w-sm border p-6 text-center"}>
           <p className="font-display text-xl font-bold">404: Spark Not Found</p>
           <p className="mt-1.5 text-sm text-base-content/70">
-            No connections yet. Send a few requests and the accepted ones will
-            show up here.
+            No connections yet. Send a few requests and the accepted ones will show up here.
           </p>
-          <Link
-            to="/"
-            className="btn btn-primary btn-sm mt-5 rounded-full px-5"
-          >
+          <Link to="/" className="btn btn-primary btn-sm mt-5 rounded-full px-5">
             Browse developers
           </Link>
         </div>
