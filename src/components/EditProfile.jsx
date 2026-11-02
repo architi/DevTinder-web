@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 const MAX_SKILLS = 10;
 const ABOUT_MAX = 300;
+const MAX_AGE = 3;
 
 const fieldStyle =
   "h-[50px] rounded-2xl border-base-content/15 bg-base-100/60 text-base-content placeholder:text-base-content/50 focus-visible:border-primary focus-visible:ring-primary/30";
@@ -37,6 +38,7 @@ const toForm = (u) => ({
   about: u?.about ?? "",
   photoUrl: u?.photoUrl ?? "",
   skills: u?.skills ?? [],
+  age: u?.age != null ? String(u.age) : "",
 });
 
 const validate = (f) => {
@@ -53,6 +55,14 @@ const validate = (f) => {
 
   if (f.about.length > ABOUT_MAX)
     errors.about = `About can be at most ${ABOUT_MAX} characters.`;
+
+   if (f.age !== "") {
+     if (!/^\d+$/.test(f.age)) {
+       errors.age = "Age must contain numbers only.";
+     } else if (Number(f.age) < 10 || Number(f.age) > 100) {
+       errors.age = "Age must be between 10 and 100.";
+     }
+   }
 
   if (f.photoUrl.trim() && !/^https?:\/\//i.test(f.photoUrl.trim()))
     errors.photoUrl = "Photo link must start with http:// or https://";
@@ -145,6 +155,10 @@ const EditProfile = ({ user }) => {
         photoUrl: form.photoUrl.trim(),
         skills: form.skills,
       };
+      //age as a number to backend rather than a string
+      if (form.age !== "") {
+        payload.age = Number(form.age);
+      }
 
       // Don't send an empty gender value
       if (form.gender) {
@@ -272,6 +286,28 @@ const EditProfile = ({ user }) => {
               placeholder="Tell developers what you are building and who you want to build it with"
               rows={4}
               className="min-h-28 rounded-2xl border-base-content/15 bg-base-100/60 text-base-content placeholder:text-base-content/50 focus-visible:border-primary focus-visible:ring-primary/30"
+            />
+          </Field>
+
+          {/* Age */}
+          <Field
+            label="Age"
+            htmlFor="age"
+            error={errors.age}
+            hint="Enter an age between 10 and 100."
+          >
+            <Input
+              id="age"
+              type="text"
+              inputMode="numeric"
+              value={form.age}
+              maxLength={MAX_AGE}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                update("age", value);
+              }}
+              placeholder="Enter your age"
+              className={fieldStyle}
             />
           </Field>
 
