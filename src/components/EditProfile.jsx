@@ -19,7 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { Textarea } from "@/components/ui/textarea";
+
+import UserCard from "./UserCard";
 
 const MAX_SKILLS = 10;
 const ABOUT_MAX = 300;
@@ -56,13 +59,13 @@ const validate = (f) => {
   if (f.about.length > ABOUT_MAX)
     errors.about = `About can be at most ${ABOUT_MAX} characters.`;
 
-   if (f.age !== "") {
-     if (!/^\d+$/.test(f.age)) {
-       errors.age = "Age must contain numbers only.";
-     } else if (Number(f.age) < 10 || Number(f.age) > 100) {
-       errors.age = "Age must be between 10 and 100.";
-     }
-   }
+  if (f.age !== "") {
+    if (!/^\d+$/.test(f.age)) {
+      errors.age = "Age must contain numbers only.";
+    } else if (Number(f.age) < 10 || Number(f.age) > 100) {
+      errors.age = "Age must be between 10 and 100.";
+    }
+  }
 
   if (f.photoUrl.trim() && !/^https?:\/\//i.test(f.photoUrl.trim()))
     errors.photoUrl = "Photo link must start with http:// or https://";
@@ -70,8 +73,8 @@ const validate = (f) => {
   return errors;
 };
 
-const Field = ({ label, htmlFor, hint, error, children }) => (
-  <div className="space-y-2">
+const Field = ({ label, htmlFor, hint, error, children, className = "" }) => (
+  <div className={`space-y-2 ${className}`}>
     <Label htmlFor={htmlFor} className="font-semibold text-base-content">
       {label}
     </Label>
@@ -83,6 +86,19 @@ const Field = ({ label, htmlFor, hint, error, children }) => (
     ) : hint ? (
       <p className="text-sm text-base-content/60">{hint}</p>
     ) : null}
+  </div>
+);
+
+const ProfileToast = () => (
+  <div
+    role="status"
+    className="fixed left-1/2 top-5 z-[100] flex -translate-x-1/2
+    items-center gap-2 rounded-full border border-base-content/15
+    bg-base-100 px-5 py-3 text-sm font-semibold text-base-content
+    shadow-xl animate-in fade-in slide-in-from-top-3 duration-300"
+  >
+    <Check className="h-4 w-4 text-primary" />
+    Identity updated! Phew, no 500 errors today.
   </div>
 );
 
@@ -143,7 +159,8 @@ const EditProfile = ({ user }) => {
 
   const handleSave = async () => {
     if (!isValid || saving) return;
-
+setSaved(true);
+setTimeout(() => setSaved(false), 3000);
     setSaving(true);
     setServerError("");
 
@@ -185,254 +202,274 @@ const EditProfile = ({ user }) => {
   const initials =
     `${form.firstName[0] ?? ""}${form.lastName[0] ?? ""}`.toUpperCase();
 
+  const previewUser = {
+    ...user,
+    ...form,
+    age: form.age === "" ? undefined : Number(form.age),
+  };
+
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-10">
-      <Card className="gap-0 rounded-[28px] border-base-content/15 bg-white/60 p-0 shadow-2xl backdrop-blur-xl dark:bg-white/[0.07]">
-        <CardContent className="space-y-8 p-6 pb-2 sm:p-8 sm:pb-2">
-          {/* Heading */}
-          <div>
-            <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-base-content">
-              Edit profile
-            </h1>
+    <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_380px]">
+      {saved && <ProfileToast />}
+      <div className="w-full min-w-0">
+        <Card className="gap-0 rounded-[28px] border-base-content/15 bg-white/60 p-0 shadow-2xl backdrop-blur-xl dark:bg-white/[0.07]">
+          <CardContent className="space-y-8 p-6 pb-2 sm:p-8 sm:pb-2">
+            {/* Heading */}
+            <div>
+              <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-base-content">
+                Edit profile
+              </h1>
 
-            <p className="mt-2 text-base-content/70">
-              Keep your details up to date so developers know who they are
-              matching with.
-            </p>
-          </div>
-
-          {/* Photo */}
-          <div className="space-y-3">
-            <Label className="font-semibold text-base-content">Photo</Label>
-
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage
-                  src={form.photoUrl}
-                  alt={fullName}
-                  className="object-cover"
-                />
-
-                <AvatarFallback className="bg-muted text-2xl font-extrabold text-muted-foreground">
-                  {initials || "?"}
-                </AvatarFallback>
-              </Avatar>
-
-              <Button
-                type="button"
-                variant="secondary"
-                className="h-11 rounded-full px-5 font-semibold !bg-secondary hover:!bg-secondary/90 active:!bg-secondary/80 transition-colors duration-150"
-                onClick={() => setShowPhotoInput((v) => !v)}
-              >
-                Change
-              </Button>
+              <p className="mt-2 text-base-content/70">
+                Keep your details up to date so developers know who they are
+                matching with.
+              </p>
             </div>
 
-            {showPhotoInput && (
+            {/* Photo */}
+            <div className="space-y-3">
+              <Label className="font-semibold text-base-content">Photo</Label>
+
+              <div className="flex items-center gap-4">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage
+                    src={form.photoUrl}
+                    alt={fullName}
+                    className="object-cover"
+                  />
+
+                  <AvatarFallback className="bg-muted text-2xl font-extrabold text-muted-foreground">
+                    {initials || "?"}
+                  </AvatarFallback>
+                </Avatar>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="h-11 rounded-full px-5 font-semibold !bg-secondary hover:!bg-secondary/90 active:!bg-secondary/80 transition-colors duration-150"
+                  onClick={() => setShowPhotoInput((v) => !v)}
+                >
+                  Change
+                </Button>
+              </div>
+
+              {showPhotoInput && (
+                <Field
+                  htmlFor="photoUrl"
+                  error={errors.photoUrl}
+                  hint="Paste a link to your photo."
+                >
+                  <Input
+                    id="photoUrl"
+                    value={form.photoUrl}
+                    onChange={(e) => update("photoUrl", e.target.value)}
+                    placeholder="https://example.com/me.jpg"
+                    className={fieldStyle}
+                  />
+                </Field>
+              )}
+            </div>
+
+            {/* Names */}
+            <div className="grid gap-5 sm:grid-cols-2">
               <Field
-                htmlFor="photoUrl"
-                error={errors.photoUrl}
-                hint="Paste a link to your photo."
+                label="First name"
+                htmlFor="firstName"
+                error={errors.firstName}
               >
                 <Input
-                  id="photoUrl"
-                  value={form.photoUrl}
-                  onChange={(e) => update("photoUrl", e.target.value)}
-                  placeholder="https://example.com/me.jpg"
+                  id="firstName"
+                  value={form.firstName}
+                  onChange={(e) => update("firstName", e.target.value)}
+                  maxLength={15}
                   className={fieldStyle}
                 />
               </Field>
-            )}
-          </div>
 
-          {/* Names */}
-          <div className="grid gap-5 sm:grid-cols-2">
+              <Field
+                label="Last name"
+                htmlFor="lastName"
+                error={errors.lastName}
+              >
+                <Input
+                  id="lastName"
+                  value={form.lastName}
+                  onChange={(e) => update("lastName", e.target.value)}
+                  maxLength={15}
+                  className={fieldStyle}
+                />
+              </Field>
+            </div>
+
+            {/* About */}
             <Field
-              label="First name"
-              htmlFor="firstName"
-              error={errors.firstName}
+              label="About"
+              htmlFor="about"
+              error={errors.about}
+              hint={`${form.about.length}/${ABOUT_MAX}`}
             >
-              <Input
-                id="firstName"
-                value={form.firstName}
-                onChange={(e) => update("firstName", e.target.value)}
-                maxLength={15}
-                className={fieldStyle}
+              <Textarea
+                id="about"
+                value={form.about}
+                onChange={(e) => update("about", e.target.value)}
+                placeholder="Tell developers what you are building and who you want to build it with"
+                rows={4}
+                className="min-h-28 rounded-2xl border-base-content/15 bg-base-100/60 text-base-content placeholder:text-base-content/50 focus-visible:border-primary focus-visible:ring-primary/30"
               />
             </Field>
 
-            <Field label="Last name" htmlFor="lastName" error={errors.lastName}>
+            <div className="grid grid-cols-2 gap-5">
+              {/* Age */}
+              <Field
+                label="Age"
+                htmlFor="age"
+                error={errors.age}
+                hint="Enter an age between 10 and 100."
+              >
+                <Input
+                  id="age"
+                  type="text"
+                  inputMode="numeric"
+                  value={form.age}
+                  maxLength={MAX_AGE}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    update("age", value);
+                  }}
+                  placeholder="Enter your age"
+                  className={fieldStyle + " w-full"}
+                />
+              </Field>
+
+              {/* Gender */}
+              <Field label="Gender" htmlFor="gender">
+                <Select
+                  value={form.gender}
+                  onValueChange={(v) => update("gender", v)}
+                >
+                  <SelectTrigger id="gender" className={fieldStyle + " w-full"}>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="others">Others</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+            </div>
+            {/* Skills */}
+            <Field
+              label="Skills"
+              htmlFor="skills"
+              hint={`Type a skill and press Enter. Up to ${MAX_SKILLS}.`}
+            >
               <Input
-                id="lastName"
-                value={form.lastName}
-                onChange={(e) => update("lastName", e.target.value)}
-                maxLength={15}
+                id="skills"
+                value={skillInput}
+                onChange={(e) => setSkillInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    addSkill();
+                  }
+                }}
+                onBlur={addSkill}
+                placeholder="React, Node.js, MongoDB"
+                disabled={form.skills.length >= MAX_SKILLS}
                 className={fieldStyle}
               />
-            </Field>
-          </div>
 
-          {/* About */}
-          <Field
-            label="About"
-            htmlFor="about"
-            error={errors.about}
-            hint={`${form.about.length}/${ABOUT_MAX}`}
-          >
-            <Textarea
-              id="about"
-              value={form.about}
-              onChange={(e) => update("about", e.target.value)}
-              placeholder="Tell developers what you are building and who you want to build it with"
-              rows={4}
-              className="min-h-28 rounded-2xl border-base-content/15 bg-base-100/60 text-base-content placeholder:text-base-content/50 focus-visible:border-primary focus-visible:ring-primary/30"
-            />
-          </Field>
-
-          {/* Age */}
-          <Field
-            label="Age"
-            htmlFor="age"
-            error={errors.age}
-            hint="Enter an age between 10 and 100."
-          >
-            <Input
-              id="age"
-              type="text"
-              inputMode="numeric"
-              value={form.age}
-              maxLength={MAX_AGE}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, "");
-                update("age", value);
-              }}
-              placeholder="Enter your age"
-              className={fieldStyle}
-            />
-          </Field>
-
-          {/* Gender */}
-          <Field label="Gender" htmlFor="gender">
-            <Select
-              value={form.gender}
-              onValueChange={(v) => update("gender", v)}
-            >
-              <SelectTrigger id="gender" className={fieldStyle + " w-full"}>
-                <SelectValue placeholder="Select gender" />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="others">Others</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-
-          {/* Skills */}
-          <Field
-            label="Skills"
-            htmlFor="skills"
-            hint={`Type a skill and press Enter. Up to ${MAX_SKILLS}.`}
-          >
-            <Input
-              id="skills"
-              value={skillInput}
-              onChange={(e) => setSkillInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === ",") {
-                  e.preventDefault();
-                  addSkill();
-                }
-              }}
-              onBlur={addSkill}
-              placeholder="React, Node.js, MongoDB"
-              disabled={form.skills.length >= MAX_SKILLS}
-              className={fieldStyle}
-            />
-
-            {form.skills.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-1">
-                {form.skills.map((skill) => (
-                  <Badge
-                    key={skill}
-                    variant="secondary"
-                    className="gap-1 rounded-full py-1 pl-3 pr-1.5 text-sm font-semibold"
-                  >
-                    {skill}
-
-                    <button
-                      type="button"
-                      aria-label={`Remove ${skill}`}
-                      onClick={() => removeSkill(skill)}
-                      style={{
-                        padding: 0,
-                        background: "transparent",
-                        border: "none",
-                        borderRadius: "9999px",
-                      }}
-                      className="grid h-5 w-5 shrink-0 place-items-center hover:bg-foreground/10"
+              {form.skills.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {form.skills.map((skill) => (
+                    <Badge
+                      key={skill}
+                      variant="secondary"
+                      className="gap-1 rounded-full py-1 pl-3 pr-1.5 text-sm font-semibold"
                     >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </Field>
+                      {skill}
 
-          {/* Email (read only) */}
-          <Field
-            label="Email"
-            htmlFor="emailId"
-            hint="Your email can't be changed here."
-          >
-            <Input
-              id="emailId"
-              value={user.emailId ?? ""}
-              disabled
-              readOnly
-              className={fieldStyle + " opacity-70"}
-            />
-          </Field>
-        </CardContent>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${skill}`}
+                        onClick={() => removeSkill(skill)}
+                        style={{
+                          padding: 0,
+                          background: "transparent",
+                          border: "none",
+                          borderRadius: "9999px",
+                        }}
+                        className="grid h-5 w-5 shrink-0 place-items-center hover:bg-foreground/10"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </Field>
 
-        {/* Bottom bar - Reset / Save */}
-        <div className="sticky bottom-0 mt-4 flex flex-wrap items-center justify-end gap-3 rounded-b-[28px] border-t border-base-content/15 bg-base-100/70 px-6 py-4 backdrop-blur-xl sm:px-8">
-          <div className="mr-auto text-sm" aria-live="polite">
-            {serverError ? (
-              <span className="text-error">{serverError}</span>
-            ) : saved ? (
-              <span className="inline-flex items-center gap-1.5 text-base-content">
-                <Check className="h-4 w-4" /> Profile saved
-              </span>
-            ) : null}
-          </div>
+            {/* Email (read only) */}
 
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleReset}
-            disabled={!isDirty || saving}
-            className="h-12 rounded-full px-6 font-semibold
+            <Field
+              label="Email"
+              htmlFor="emailId"
+              hint="Your email can't be changed here."
+              className="sm:max-w-[45%]"
+            >
+              <Input
+                id="emailId"
+                value={user.emailId ?? ""}
+                disabled
+                readOnly
+                className={fieldStyle + " opacity-70"}
+              />
+            </Field>
+          </CardContent>
+
+          {/* Bottom bar - Reset / Save */}
+          <div className="sticky bottom-0 mt-4 flex flex-wrap items-center justify-end gap-3 rounded-b-[28px] border-t border-base-content/15 bg-base-100/70 px-6 py-4 backdrop-blur-xl sm:px-8">
+            <div className="mr-auto text-sm" aria-live="polite">
+              {serverError && <span className="text-error">{serverError}</span>}
+            </div>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleReset}
+              disabled={!isDirty || saving}
+              className="h-12 rounded-full px-6 font-semibold
                         bg-secondary
                         hover:bg-secondary/90
                         active:bg-secondary/80
                         transition-colors duration-150"
-          >
-            Reset
-          </Button>
+            >
+              Reset
+            </Button>
 
-          <Button
-            type="button"
-            onClick={handleSave}
-            disabled={!isDirty || !isValid || saving}
-            className={"h-12 rounded-full px-7 font-extrabold " + primaryBtn}
-          >
-            {saving ? "Saving…" : "Save"}
-          </Button>
-        </div>
-      </Card>
+            <Button
+              type="button"
+              onClick={handleSave}
+              disabled={!isDirty || !isValid || saving}
+              className={"h-12 rounded-full px-7 font-extrabold " + primaryBtn}
+            >
+              {saving ? "Saving…" : "Save"}
+            </Button>
+          </div>
+        </Card>
+      </div>
+
+      <div className="flex flex-col items-center gap-4 lg:sticky lg:top-8">
+        <h2 className="text-xl font-bold text-base-content">Live Preview</h2>
+
+        <UserCard user={previewUser} showActions={false} />
+
+        <p className="text-center text-sm text-muted-foreground">
+          This is how your profile appears to other developers.
+        </p>
+      </div>
     </div>
   );
 };
