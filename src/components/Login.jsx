@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
 import { useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/constants";
@@ -164,16 +164,37 @@ const SwipeDeck = () => {
 const inputStyle =
   "input validator h-[50px] w-full border-base-content/15 bg-base-100/60 focus:border-primary focus:outline-primary/40";
 
+// The backend may send a plain string, an object with a message, or nothing.
+// This always returns a string so React never tries to render an object.
+const getErrorMessage = (err) => {
+  const data = err.response?.data;
+  if (typeof data === "string" && data.trim()) return data;
+  if (data && typeof data.message === "string") return data.message;
+  if (data && typeof data.error === "string") return data.error;
+  return "Something went wrong!";
+};
+
 const Login = () => {
-  const [emailId, setEmailId] = useState("akshaysaini@gmail.com");
-  const [password, setPassword] = useState("Akshay@123");
+  const [isLogin, setIsLogin] = useState(true); // true = login form, false = signup form
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [emailId, setEmailId] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); // stop the page from reloading
+  // Switch between login and signup. Email and password carry over,
+  // so the user doesn't have to type them twice.
+  const switchMode = () => {
+    setIsLogin((prev) => !prev);
+    setError("");
+    setSuccess("");
+  };
 
+  const handleLogin = async () => {
     try {
       const res = await axios.post(
         BASE_URL + "/login",
@@ -183,8 +204,42 @@ const Login = () => {
       dispatch(addUser(res.data));
       return navigate("/");
     } catch (err) {
-      setError(err.response?.data||"Something went wrong!");
+      setError(getErrorMessage(err));
     }
+  };
+
+  const handleSignup = async () => {
+    try {
+      // Signup does NOT log the user in (no cookie is set by the backend),
+      // so we don't dispatch addUser or navigate. We send them to the login form.
+      await axios.post(
+        BASE_URL + "/signup",
+        { firstName, lastName, emailId, password },
+        { withCredentials: true },
+      );
+      setIsLogin(true);
+      setPassword(""); // keep the email, clear only the password
+      setSuccess("Profile created! Log in to start swiping.");
+    } catch (err) {
+      setError(getErrorMessage(err)); // stay in signup mode, keep all fields
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // stop the page from reloading
+    if (loading) return;
+
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    if (isLogin) {
+      await handleLogin();
+    } else {
+      await handleSignup();
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -201,9 +256,9 @@ const Login = () => {
         <SwipeDeck />
       </section>
 
-      {/* Right: login card */}
+      {/* Right: login / signup card */}
       <form
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit}
         className="w-full max-w-md justify-self-center rounded-[28px] border border-base-content/15 bg-white/60 p-6 shadow-2xl backdrop-blur-xl md:justify-self-start lg:p-8 dark:bg-white/[0.07]"
       >
         <div className="mb-5 flex items-center gap-2.5 text-[13px] text-base-content/70">
@@ -222,7 +277,7 @@ const Login = () => {
         </div>
 
         <h2 className="mb-5 font-display text-3xl font-extrabold leading-tight tracking-tight">
-          Welcome back
+          {isLogin ? "Welcome back" : "Create your profile"}
         </h2>
 
         {/* GITHUB login to implement later
@@ -240,14 +295,52 @@ const Login = () => {
           or use email
         </div> */}
 
-        <fieldset className="fieldset">
+        {/* Signup only: first and last name side by side */}
+        {!isLogin && (
+          <div className="grid grid-cols-2 gap-3">
+            <fieldset className="fieldset">
+              <label className="label font-semibold text-base-content">
+                First name
+              </label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className={inputStyle}
+                placeholder="Simran"
+                autoComplete="given-name"
+                required
+              />
+              <p className="validator-hint hidden">Enter your first name</p>
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <label className="label font-semibold text-base-content">
+                Last name
+              </label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className={inputStyle}
+                placeholder="Dadhwal"
+                autoComplete="family-name"
+                required
+              />
+              <p className="validator-hint hidden">Enter your last name</p>
+            </fieldset>
+          </div>
+        )}
+
+        <fieldset className={"fieldset" + (isLogin ? "" : " mt-1")}>
           <label className="label font-semibold text-base-content">Email</label>
           <input
             type="email"
             value={emailId}
             onChange={(e) => setEmailId(e.target.value)}
             className={inputStyle}
-            placeholder="you@example.com"
+            placeholder="simran@example.com"
+            autoComplete="email"
             required
           />
           <p className="validator-hint hidden">Enter a valid email</p>
@@ -263,25 +356,43 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             className={inputStyle}
             placeholder="••••••••"
+            autoComplete={isLogin ? "current-password" : "new-password"}
             required
           />
-          <p className="validator-hint hidden">Enter your password</p>
+          <p className="validator-hint hidden">
+            {isLogin ? "Enter your password" : "Choose a password"}
+          </p>
         </fieldset>
 
-        {error && <p className="mt-4 text-sm text-error">{error}</p>}
+        {success && (
+          <p role="status" className="mt-4 text-sm font-semibold text-success">
+            {success}
+          </p>
+        )}
+        {error && (
+          <p role="alert" className="mt-4 text-sm text-error">
+            {error}
+          </p>
+        )}
 
         <button
           className="btn btn-primary mt-6 h-14 w-full rounded-full font-display text-[17px] font-extrabold"
           type="submit"
+          disabled={loading}
         >
-          Log in
+          {loading && <span className="loading loading-spinner loading-sm" />}
+          {isLogin ? "Log in" : "Create profile"}
         </button>
 
         <p className="mt-5 text-center text-sm text-base-content/70">
-          New here?{" "}
-          <a className="link font-bold text-base-content decoration-primary underline-offset-4">
-            Create your profile
-          </a>
+          {isLogin ? "New here? " : "Already have an account? "}
+          <button
+            type="button"
+            onClick={switchMode}
+            className="link cursor-pointer font-bold text-base-content decoration-primary underline-offset-4"
+          >
+            {isLogin ? "Create your profile" : "Log in"}
+          </button>
         </p>
       </form>
     </div>
