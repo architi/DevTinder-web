@@ -13,7 +13,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const MAX_SKILLS = 3;
 
-
 const glass =
   "rounded-2xl border-base-content/15 bg-white/60 text-base-content shadow-md dark:bg-white/[0.07]";
 
@@ -110,7 +109,7 @@ const RequestRow = ({ request, row, onReview }) => {
               <Button
                 type="button"
                 variant="outline"
-                disabled={busy}
+                disabled={busy || row.status === "rejected"}
                 onClick={() => onReview("rejected", request._id)}
                 className="h-10 flex-1 rounded-full px-4 sm:flex-none"
               >
@@ -119,7 +118,7 @@ const RequestRow = ({ request, row, onReview }) => {
               </Button>
               <Button
                 type="button"
-                disabled={busy}
+                disabled={busy || row.status === "rejected"}
                 onClick={() => onReview("accepted", request._id)}
                 className={
                   "h-10 flex-1 rounded-full px-4 font-bold sm:flex-none " +
@@ -201,10 +200,12 @@ const Requests = () => {
         status === "accepted" ? 1000 : 300,
       );
     } catch (err) {
-      const msg = err.response?.data;
+      const data = err.response?.data;
+      const msg = typeof data === "string" ? data : data?.message;
+
       setRow(requestId, {
         status: "idle",
-        error: typeof msg === "string" ? msg : "Something went wrong.",
+        error: msg || "Something went wrong.",
       });
     }
   };
