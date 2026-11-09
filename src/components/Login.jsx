@@ -307,7 +307,6 @@ const Login = () => {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 className={inputStyle}
-                placeholder="Simran"
                 autoComplete="given-name"
                 required
               />
@@ -323,7 +322,6 @@ const Login = () => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 className={inputStyle}
-                placeholder="Dadhwal"
                 autoComplete="family-name"
                 required
               />
@@ -339,7 +337,6 @@ const Login = () => {
             value={emailId}
             onChange={(e) => setEmailId(e.target.value)}
             className={inputStyle}
-            placeholder="simran@example.com"
             autoComplete="email"
             required
           />
@@ -355,7 +352,6 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={inputStyle}
-            placeholder="••••••••"
             autoComplete={isLogin ? "current-password" : "new-password"}
             required
           />
