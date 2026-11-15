@@ -4,7 +4,7 @@ const Footer = () => {
       <div className="flex flex-wrap items-center justify-between gap-4 border-t border-base-content/15 pt-6 text-sm text-base-content/70">
         <p>
           <span className="font-display text-lg font-extrabold text-base-content">
-            DevTinder<span className="text-primary">.</span>
+            cofoundme<span className="text-primary">.</span>
           </span>
           <span className="ml-3">Made for developers who want to connect.</span>
         </p>

@@ -32,7 +32,7 @@ const NavBar = () => {
             to="/"
             className="font-display text-2xl font-extrabold tracking-tight"
           >
-            DevTinder<span className="text-primary">.</span>
+            cofoundme<span className="text-primary">.</span>
           </Link>
         </div>
 
